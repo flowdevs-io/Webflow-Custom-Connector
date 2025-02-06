@@ -1,0 +1,243 @@
+swagger: '2.0'
+info:
+  title: Webflow
+  description: Custom connector for Webflow CMS items (v2)
+  version: '1.0'
+host: api.webflow.com
+basePath: /v2
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  '': 
+    get:
+      responses:
+        default:
+          description: default
+          schema: {}
+  /collections/{collectionId}/items:
+    post:
+      summary: Create CMS item
+      description: Creates a new CMS item in a Webflow collection.
+      operationId: createCMSItem
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: collectionId
+          in: path
+          description: The ID of your CMS collection.
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: CMS item data to be created.
+          required: true
+          schema:
+            type: object
+            properties:
+              items:
+                type: array
+                description: An array containing one or more CMS item definitions.
+                items:
+                  type: object
+                  properties:
+                    fieldData:
+                      type: object
+                      properties:
+                        slug:
+                          type: string
+                          description: URL-friendly unique identifier.
+                        name:
+                          type: string
+                          description: Name for the CMS item.
+                        run-count:
+                          type: number
+                          description: Optional run count.
+                        _archived:
+                          type: boolean
+                          default: false
+                        _draft:
+                          type: boolean
+                          default: false
+                      required:
+                        - slug
+                        - name
+            required:
+              - items
+            example:
+              items:
+                - fieldData:
+                    slug: "qb-flow"
+                    name: "qb-flow"
+                    run-count: 25
+                    _archived: false
+                    _draft: false
+      responses:
+        200:
+          description: Successful creation of the CMS item.
+          schema:
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    fieldData:
+                      type: object
+        400:
+          description: Bad Request – the payload is invalid.
+    get:
+      summary: Get CMS items
+      description: Returns all CMS items in the specified collection.
+      operationId: getCMSItems
+      produces:
+        - application/json
+      parameters:
+        - name: collectionId
+          in: path
+          description: The ID of the CMS collection.
+          required: true
+          type: string
+        - name: limit
+          in: query
+          description: The maximum number of items to return.
+          required: false
+          type: integer
+        - name: offset
+          in: query
+          description: The offset of items to return.
+          required: false
+          type: integer
+      responses:
+        200:
+          description: A list of CMS items.
+          schema:
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    fieldData:
+                      type: object
+        400:
+          description: Bad Request
+  /collections/{collectionId}/items/{itemId}:
+    get:
+      summary: Get a CMS item
+      description: Returns a specific CMS item.
+      operationId: getCMSItem
+      produces:
+        - application/json
+      parameters:
+        - name: collectionId
+          in: path
+          description: The ID of the CMS collection.
+          required: true
+          type: string
+        - name: itemId
+          in: path
+          description: The ID of the CMS item.
+          required: true
+          type: string
+      responses:
+        200:
+          description: A single CMS item.
+          schema:
+            type: object
+            properties:
+              item:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  fieldData:
+                    type: object
+        400:
+          description: Bad Request
+    patch:
+      summary: Update CMS item run count
+      description: Updates the run count (and other fields) of an existing CMS item.
+      operationId: updateCMSItemRunCount
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: collectionId
+          in: path
+          description: The ID of the CMS collection.
+          required: true
+          type: string
+        - name: itemId
+          in: path
+          description: The ID of the CMS item.
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: Payload to update the CMS item. The payload must include the required fields (slug and name).
+          required: true
+          schema:
+            type: object
+            properties:
+              fields:
+                type: object
+                properties:
+                  slug:
+                    type: string
+                    description: URL-friendly unique identifier.
+                  name:
+                    type: string
+                    description: Name for the CMS item.
+                  run-count:
+                    type: number
+                    description: The new run count value.
+                  _archived:
+                    type: boolean
+                    default: false
+                  _draft:
+                    type: boolean
+                    default: false
+                required:
+                  - slug
+                  - name
+            required:
+              - fields
+      responses:
+        200:
+          description: Successful update of the CMS item.
+          schema:
+            type: object
+            properties:
+              item:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  fields:
+                    type: object
+        400:
+          description: Bad Request – the payload is invalid.
+securityDefinitions:
+  api_key:
+    type: apiKey
+    in: header
+    name: Authorization
+security:
+  - api_key: []
+definitions: {}
+parameters: {}
+responses: {}
+tags: []
